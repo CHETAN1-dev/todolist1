@@ -4,115 +4,135 @@
  *
  * @format
  */
+import React, { useState } from 'react';
+import { SafeAreaView, View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';  // Updated import
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
+  const [tasks, setTasks] = useState([]);
+  const [taskText, setTaskText] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [selectedPriority, setSelectedPriority] = useState('Medium'); // Default priority
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const addTask = () => {
+    if (taskText.trim()) {
+      if (editingTaskId !== null) {
+        // Edit existing task
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === editingTaskId
+              ? { ...task, text: taskText, priority: selectedPriority }
+              : task
+          )
+        );
+        setEditingTaskId(null);
+      } else {
+        // Add new task
+        setTasks([
+          ...tasks,
+          { id: Date.now().toString(), text: taskText, completed: false, priority: selectedPriority },
+        ]);
+      }
+      setTaskText('');
+      setSelectedPriority('Medium'); // Reset to default priority
+    } else {
+      alert('Task cannot be empty');
+    }
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+  const toggleCompletion = (id) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const editTask = (id) => {
+    const taskToEdit = tasks.find((task) => task.id === id);
+    if (taskToEdit) {
+      setTaskText(taskToEdit.text);
+      setSelectedPriority(taskToEdit.priority);
+      setEditingTaskId(id);
+    }
+  };
+
+  const deleteTask = (id) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  };
+
+  const renderTask = ({ item }) => {
+    return (
+      <View style={styles.taskContainer}>
+        <TouchableOpacity
+          style={styles.taskTextContainer}
+          onPress={() => toggleCompletion(item.id)}
+        >
+          <Text
+            style={[
+              styles.taskText,
+              item.completed && styles.taskCompleted,
+            ]}
+          >
+            {item.text}
+          </Text>
+          <Text style={styles.priorityText}>Priority: {item.priority}</Text>
+        </TouchableOpacity>
+        <View style={styles.taskActions}>
+          <Button title="Edit" onPress={() => editTask(item.id)} />
+          <Button title="Delete" color="red" onPress={() => deleteTask(item.id)} />
         </View>
-      </ScrollView>
+      </View>
+    );
+  };
+
+  const sortedTasks = tasks.sort((a, b) => {
+    const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>To-Do List</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter a task"
+        value={taskText}
+        onChangeText={setTaskText}
+      />
+      <Picker
+        selectedValue={selectedPriority}
+        style={styles.picker}
+        onValueChange={(itemValue) => setSelectedPriority(itemValue)}
+      >
+        <Picker.Item label="High" value="High" />
+        <Picker.Item label="Medium" value="Medium" />
+        <Picker.Item label="Low" value="Low" />
+      </Picker>
+      <Button title={editingTaskId ? "Update Task" : "Add Task"} onPress={addTask} />
+      <FlatList
+        data={sortedTasks}
+        keyExtractor={(item) => item.id}
+        renderItem={renderTask}
+        style={styles.list}
+      />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#f0f0f0' },
+  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  input: { padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 5, marginBottom: 10 },
+  picker: { height: 50, width: 150, marginBottom: 10 },
+  taskContainer: { flexDirection: 'row', justifyContent: 'space-between', padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  taskTextContainer: { flex: 1 },
+  taskText: { fontSize: 18 },
+  taskCompleted: { textDecorationLine: 'line-through', color: 'green' },
+  priorityText: { fontSize: 14, color: '#888', marginTop: 5 },
+  taskActions: { flexDirection: 'row', gap: 10 },
+  list: { marginTop: 20 },
 });
 
 export default App;
+
