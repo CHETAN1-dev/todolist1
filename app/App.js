@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
+import TaskItem from './Taskitem';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);

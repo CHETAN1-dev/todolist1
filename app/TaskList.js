@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
-import TaskItem from './TaskItem';
+import TaskItem from './Taskitem';
 
 const TaskList = ({ tasks, onToggleCompletion, onEditTask, onDeleteTask }) => {
   return (

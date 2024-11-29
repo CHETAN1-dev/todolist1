@@ -1,6 +1,7 @@
 import React from 'react';
-import { TextInput, Button, Picker, StyleSheet } from 'react-native';
-
+import { TextInput, Button, StyleSheet } from 'react-native';
+// import {Picker} from '@react-native-picker/picker';
+//  const [selectedLanguage, setSelectedLanguage] = useState();
 const TaskForm = ({ taskText, setTaskText, selectedPriority, setSelectedPriority, onAddTask, editingTaskId }) => {
   return (
     <>
@@ -10,7 +11,7 @@ const TaskForm = ({ taskText, setTaskText, selectedPriority, setSelectedPriority
         value={taskText}
         onChangeText={setTaskText}
       />
-      <Picker
+      {/* <Picker
         selectedValue={selectedPriority}
         style={styles.picker}
         onValueChange={setSelectedPriority}
@@ -18,7 +19,7 @@ const TaskForm = ({ taskText, setTaskText, selectedPriority, setSelectedPriority
         <Picker.Item label="High" value="High" />
         <Picker.Item label="Medium" value="Medium" />
         <Picker.Item label="Low" value="Low" />
-      </Picker>
+      </Picker> */}
       <Button title={editingTaskId ? "Update Task" : "Add Task"} onPress={onAddTask} />
     </>
   );
