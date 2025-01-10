@@ -11,6 +11,7 @@ import {
 import TaskForm from './Taskform';
 import TaskList from './Tasklist';
 import TaskCount from './Taskcount';
+import Quote from './Quote';
 
 const App = () => {
   const tasks = useSelector(state => state.tasks.tasks);
@@ -88,6 +89,7 @@ const App = () => {
         onEditTask={onEditTask}
         onDeleteTask={onDeleteTask}
       />
+      <Quote/>
     </SafeAreaView>
   );
 };
